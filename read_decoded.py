@@ -122,8 +122,8 @@ def analyze_chunk(data):
     for i in range(len(amplC1)):
         waveform_fit_dict_C1 = fit_waveform(amplC1[i], dt[i])
         waveform_fit_dict_C2 = fit_waveform(amplC2[i], dt[i])
-        binary_num = decode_event_num(amplC3[i], dt[i], True)
-        plt.show()
+        # binary_num = decode_event_num(amplC3[i], dt[i], True)
+        # plt.show()
         if waveform_fit_dict_C1 is not None and waveform_fit_dict_C2 is not None:
             waveform_fits_C1.append(waveform_fit_dict_C1)
             waveform_fits_C2.append(waveform_fit_dict_C2)
