@@ -201,8 +201,8 @@ def plot_false_positive_vs_mv_avg_points():
     print(f'Single Point Rejection Rate: {1 - single_point_rate}')
     single_point_sigmas = norm.ppf(single_point_rate)
 
-    # sigma_threshold = -3
-    sigma_threshold = single_point_sigmas
+    sigma_threshold = -3
+    # sigma_threshold = single_point_sigmas
     print(f'Sigma Threshold: {sigma_threshold}')
 
     # Baseline parameters
@@ -213,11 +213,10 @@ def plot_false_positive_vs_mv_avg_points():
     y_noises = np.random.normal(0, sigma_noise, (n_waveforms, n_points))
 
     # Read correction factor from file
-    df = pd.read_csv('correction_factor.csv')
-    correction_factor_dict = {row['n_points']: row['correction_factor'] for index, row in df.iterrows()}
-    for n_mv_avg in moving_average_points:
-        print(f'Correction Factor for {n_mv_avg} Points: {correction_factor_dict[n_mv_avg]}')
-    input()
+    # df = pd.read_csv('correction_factor.csv')
+    # correction_factor_dict = {row['n_points']: row['correction_factor'] for index, row in df.iterrows()}
+    # for n_mv_avg in moving_average_points:
+    #     print(f'Correction Factor for {n_mv_avg} Points: {correction_factor_dict[n_mv_avg]}')
 
     i = 0
     false_positives = np.zeros(len(moving_average_points))
@@ -227,8 +226,8 @@ def plot_false_positive_vs_mv_avg_points():
         i += 1
         for j, n_mv_avg in enumerate(moving_average_points):
             x_avg, y_avg = moving_average_numpy(x, y_noise, n_mv_avg)
-            threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5) * correction_factor_dict[n_mv_avg]
-            # threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5)
+            # threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5) * correction_factor_dict[n_mv_avg]
+            threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5)
             waveform_mins[n_mv_avg].append(np.min(y_avg))
             n_below = len(y_avg[y_avg < threshold_scaled])
             if n_below > 0:
