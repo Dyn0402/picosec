@@ -197,8 +197,12 @@ def plot_false_positive_vs_mv_avg_points():
     x = np.linspace(0, 1000, n_points)  # x in picoseconds
     # moving_average_points = np.arange(1, 2000, 20)
     moving_average_points = np.arange(1, 50, 1)
-    # rejection_rate = 0.999
-    rejection_rate = 0.9
+    rejection_rate = 0.99999
+    # rejection_rate = 0.9
+
+    read_and_correct = True
+    write_corrections = False
+
     single_point_rate = 1 - rejection_rate ** (1 / n_points)
     print(f'Single Point Rejection Rate: {1 - single_point_rate}')
     single_point_sigmas = norm.ppf(single_point_rate)
@@ -209,21 +213,22 @@ def plot_false_positive_vs_mv_avg_points():
 
     # Baseline parameters
     baseline = 0
-    sigma_noise = 0.2
+    sigma_noise = 0.5
 
     # Generate noise waveforms
     y_noises = np.random.normal(baseline, sigma_noise, (n_waveforms, n_points))
 
-    # Read correction factor from file
-    # df = pd.read_csv('correction_factor.csv')
-    # correction_factor_dict = {row['n_points']: row['correction_factor'] for index, row in df.iterrows()}
-    # for n_mv_avg in moving_average_points:
-    #     print(f'Correction Factor for {n_mv_avg} Points: {correction_factor_dict[n_mv_avg]}')
-    # input()
+    # if read_and_correct:
+    #     # Read correction factor from file
+    #     df = pd.read_csv('correction_factor.csv')
+    #     correction_factor_dict = {row['n_points']: row['correction_factor'] for index, row in df.iterrows()}
+    #     for n_mv_avg in moving_average_points:
+    #         print(f'Correction Factor for {n_mv_avg} Points: {correction_factor_dict[n_mv_avg]}')
 
-    # Read raw ratios from file
-    df = pd.read_csv('raw_ratios.csv')
-    raw_ratio_dict = {row['n_points']: row['raw_ratio'] for index, row in df.iterrows()}
+    if read_and_correct:
+        # Read raw ratios from file
+        df = pd.read_csv('raw_ratios.csv')
+        raw_ratio_dict = {row['n_points']: row['raw_ratio'] for index, row in df.iterrows()}
 
     i = 0
     false_positives = np.zeros(len(moving_average_points))
@@ -234,8 +239,10 @@ def plot_false_positive_vs_mv_avg_points():
         for j, n_mv_avg in enumerate(moving_average_points):
             x_avg, y_avg = moving_average_numpy(x, y_noise, n_mv_avg)
             # threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5) * correction_factor_dict[n_mv_avg]
-            threshold_scaled = sigma_threshold * sigma_noise * raw_ratio_dict[n_mv_avg]
-            # threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5)
+            if read_and_correct:
+                threshold_scaled = sigma_threshold * sigma_noise * raw_ratio_dict[n_mv_avg]
+            else:
+                threshold_scaled = sigma_threshold * sigma_noise / (n_mv_avg ** 0.5)
             waveform_mins[n_mv_avg].append(np.min(y_avg))
             n_below = len(y_avg[y_avg < threshold_scaled])
             if n_below > 0:
@@ -285,9 +292,10 @@ def plot_false_positive_vs_mv_avg_points():
     # df = pd.DataFrame({'n_points': moving_average_points, 'threshold': thresholds})
     # df.to_csv('thresholds.csv', index=False)
 
-    # Write raw ratios to file
-    # df = pd.DataFrame({'n_points': moving_average_points, 'raw_ratio': raw_ratio})
-    # df.to_csv('raw_ratios.csv', index=False)
+    if write_corrections:
+        # Write raw ratios to file
+        df = pd.DataFrame({'n_points': moving_average_points, 'raw_ratio': raw_ratio})
+        df.to_csv('raw_ratios.csv', index=False)
 
     plt.show()
 
