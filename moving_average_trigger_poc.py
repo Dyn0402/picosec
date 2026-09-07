@@ -197,7 +197,7 @@ def plot_false_positive_vs_mv_avg_points():
     x = np.linspace(0, 1000, n_points)  # x in picoseconds
     # moving_average_points = np.arange(1, 2000, 20)
     moving_average_points = np.arange(1, 50, 1)
-    rejection_rate = 0.99999
+    rejection_rate = 0.99
     # rejection_rate = 0.9
 
     read_and_correct = True
